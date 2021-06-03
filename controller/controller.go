@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"strconv"
 	"unicode/utf8"
 
 	"github.com/go-playground/validator"
@@ -13,7 +14,7 @@ import (
 	"github.com/yudhiesh/api/config"
 )
 
-func emailExists(db *sql.DB, email string) bool {
+func EmailExists(db *sql.DB, email string) bool {
 	row := db.QueryRow("select email from users where email= ?", email)
 	temp := ""
 	row.Scan(&temp)
@@ -21,6 +22,19 @@ func emailExists(db *sql.DB, email string) bool {
 		return true
 	}
 	return false
+}
+
+func CanAccessValue(db *sql.DB, canAccess bool, email, featureName string) (error, bool) {
+	row := db.QueryRow("SELECT features.can_access FROM features INNER JOIN users ON features.user_id=users.id WHERE users.email=? AND features.feature_name=?", email, featureName)
+	rowResult := ""
+	row.Scan(&rowResult)
+	err1 := errors.New("Failed to check value")
+	if rowResult == "0" {
+		return nil, strconv.FormatBool(canAccess) != "false"
+	} else if rowResult == "1" {
+		return nil, strconv.FormatBool(canAccess) != "true"
+	}
+	return err1, false
 }
 
 func GetCanAccess(w http.ResponseWriter, r *http.Request) {
@@ -69,7 +83,7 @@ func InsertFeature(w http.ResponseWriter, r *http.Request) {
 	var user model.User
 	var response model.ResponseInfo
 	validate := validator.New()
-	stmt := `INSERT INTO features (user_id, feature_name, can_access) SELECT id, ?, ? FROM users WHERE email=?`
+	stmt := `UPDATE features INNER JOIN users ON features.user_id=users.id SET features.can_access=? WHERE users.email=? and features.feature_name=?`
 
 	db := config.Connect()
 	defer db.Close()
@@ -77,28 +91,28 @@ func InsertFeature(w http.ResponseWriter, r *http.Request) {
 	// Decode body into user struct
 	if err := parse(w, r, &user); err != nil {
 		response.Message = Error
-		response.Status = http.StatusInternalServerError
+		response.Status = http.StatusNotModified
 		json.NewEncoder(w).Encode(response)
 		return
 	} else {
 		// Validate struct to check if all fields are correct
 		if err := validate.Struct(user); err != nil {
 			response.Message = MissingRequestParameter
-			response.Status = http.StatusUnprocessableEntity
+			response.Status = http.StatusNotModified
 			json.NewEncoder(w).Encode(response)
 			return
 		} else {
-			// Check if the user exists in the table
-			if !emailExists(db, user.Email) {
-				response.Message = UserNotFound
-				response.Status = http.StatusNotFound
+			// Check if can_access from the response and the db are different
+			if _, access := CanAccessValue(db, *user.CanAccess, user.Email, user.FeatureName); !access {
+				response.Message = NoMatchingRecordFound
+				response.Status = http.StatusNotModified
 				json.NewEncoder(w).Encode(response)
 				return
 
-			} else if _, err = db.Exec(stmt, &user.FeatureName, &user.CanAccess, &user.Email); err != nil {
+			} else if _, err = db.Exec(stmt, &user.CanAccess, &user.Email, &user.FeatureName); err != nil {
 				// Execute insert statement to database
 				response.Message = Error
-				response.Status = http.StatusInternalServerError
+				response.Status = http.StatusNotModified
 				json.NewEncoder(w).Encode(response)
 				return
 			} else {
