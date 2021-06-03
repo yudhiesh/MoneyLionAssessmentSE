@@ -15,7 +15,7 @@ import (
 
 func main() {
 	router := mux.NewRouter()
-	router.Use(middleware.ResponseMiddleware)
+	router.Use(middleware.ResponseHeaders)
 	router.Use(middleware.LogRequest)
 	router.HandleFunc("/feature", controller.GetCanAccess).Methods("GET")
 	router.HandleFunc("/feature", controller.InsertFeature).Methods("POST")

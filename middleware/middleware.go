@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-func ResponseMiddleware(next http.Handler) http.Handler {
+func ResponseHeaders(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Adds content-type of application/json to Header
 		w.Header().Add("Content-Type", "application/json")
