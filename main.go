@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -17,6 +16,7 @@ import (
 func main() {
 	router := mux.NewRouter()
 	router.Use(middleware.ResponseMiddleware)
+	router.Use(middleware.LogRequest)
 	router.HandleFunc("/feature", controller.GetCanAccess).Methods("GET")
 	router.HandleFunc("/feature", controller.InsertFeature).Methods("POST")
 	http.Handle("/", router)
@@ -36,6 +36,6 @@ func main() {
 		// Prevent the data that the handler returns from taking too long to write
 		WriteTimeout: 10 * time.Second,
 	}
-	fmt.Printf("Connected to port %s", port)
+	log.Printf("Connected to port %s", port)
 	log.Fatal(server.ListenAndServe())
 }
