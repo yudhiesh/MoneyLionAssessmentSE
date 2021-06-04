@@ -65,7 +65,7 @@ func (a *Application) GetCanAccess(w http.ResponseWriter, r *http.Request) {
 // switches the users access to a particular feature
 func (a *Application) InsertFeature(w http.ResponseWriter, r *http.Request) {
 	var user model.User
-	var response model.ResponseInfo
+	var response model.Response
 	validate := validator.New()
 	stmt := `UPDATE features INNER JOIN users ON features.user_id=users.id SET features.can_access=? WHERE users.email=? and features.feature_name=?`
 
@@ -79,33 +79,33 @@ func (a *Application) InsertFeature(w http.ResponseWriter, r *http.Request) {
 	// Decode body into user struct
 	if err := parse(w, r, &user); err != nil {
 		tx.Rollback()
-		response.SetHeader(w, Error, http.StatusNotModified)
+		response.SetHeader(w, http.StatusNotModified)
 		a.ErrorLog.Printf(Error)
 		return
 	} else {
 		// Validate struct to check if all fields are correct
 		if err := validate.Struct(user); err != nil {
 			tx.Rollback()
-			response.SetHeader(w, MissingRequestParameter, http.StatusNotModified)
+			response.SetHeader(w, http.StatusNotModified)
 			a.ErrorLog.Printf(MissingRequestParameter)
 			return
 		} else {
 			// Check if can_access from the response and the database are different
 			if _, access := a.CanAccessValue(*user.CanAccess, user.Email, user.FeatureName); !access {
 				tx.Rollback()
-				response.SetHeader(w, NoMatchingRecordFound, http.StatusNotModified)
+				response.SetHeader(w, http.StatusNotModified)
 				a.ErrorLog.Printf(NoMatchingRecordFound)
 				return
 
 			} else if _, err = a.DB.Exec(stmt, &user.CanAccess, &user.Email, &user.FeatureName); err != nil {
 				// Check if updating can_access failed
 				tx.Rollback()
-				response.SetHeader(w, Error, http.StatusNotModified)
+				response.SetHeader(w, http.StatusNotModified)
 				a.ErrorLog.Printf(Error)
 				return
 			} else {
 				tx.Commit()
-				response.SetHeader(w, Success, http.StatusOK)
+				response.SetHeader(w, http.StatusOK)
 				a.InfoLog.Printf(Success)
 				return
 			}

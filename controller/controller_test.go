@@ -3,6 +3,8 @@ package controller
 import (
 	"bytes"
 	"net/http"
+	"net/url"
+	"strconv"
 	"testing"
 )
 
@@ -38,25 +40,37 @@ func TestGetCanAcess(t *testing.T) {
 	}
 }
 
-// `
-// ERROR	2021/06/04 22:07:15 controller.go:50: No matching record found
-// INFO	2021/06/04 22:08:23 HTTP/1.1 GET /feature
-// ERROR	2021/06/04 22:08:23 controller.go:42: Missing URL query parameters email/featureName
-// INFO	2021/06/04 22:08:23 HTTP/1.1 GET /feature?email=test@gmail.com
-// ERROR	2021/06/04 22:08:23 controller.go:42: Missing URL query parameters email/featureName
-// INFO	2021/06/04 22:08:23 HTTP/1.1 GET /feature?featureName=financial-tracking
-// ERROR	2021/06/04 22:08:23 controller.go:42: Missing URL query parameters email/featureName
-// INFO	2021/06/04 22:08:23 HTTP/1.1 GET /feature?featureName=financial-tracking
-// ERROR	2021/06/04 22:08:23 controller.go:42: Missing URL query parameters email/featureName
-// INFO	2021/06/04 22:08:23 HTTP/1.1 GET /feature?email=test@gmail.com&featureName=financial-tracking
-// ERROR	2021/06/04 22:08:23 controller.go:50: No matching record found
-// INFO	2021/06/04 22:08:23 HTP/1.1 GET /feature?email=test@gmail.com&featureName=financial-tracking
-// ERROR	2021/06/04 22:08:23 controller.go:50: No matching record found
-// INFO	2021/06/04 22:08:23 HTTP/1.1 GET /feature?email=test1@gmail.com&featureName=financial-tracking
-// INFO	2021/06/04 22:08:23 Success
-// INFO	2021/06/04 22:08:23 HTTP/1.1 GET /feature?email=test1@gmail.com&featureName=crypto
-// INFO	2021/06/04 22:08:23 Success
-// INFO	2021/06/04 22:08:23 HTTP/1.1 GET /feature?email=test1@gmail.com&featureName=premium
-// ERROR	2021/06/04 22:08:23 controller.go:50: No matching record found
+func TestInsetFeature(t *testing.T) {
 
-// `
+	app := newTestApplication(t)
+	ts := newTestServer(t, app.routes())
+	defer ts.Close()
+	tests := []struct {
+		name        string
+		urlPath     string
+		featureName string
+		email       string
+		enable      bool
+		wantCode    int
+	}{
+		{"Missing body 1", "/feature", "", "", false, http.StatusNotModified},
+		{"Missing body 2", "/feature", "", "", true, http.StatusNotModified},
+		{"Incorrect value for parameters 1", "/feature", "premium", "test1@gmail.com", false, http.StatusNotModified},
+		{"Correct case", "/feature", "automated-investing", "test3@gmail.com", true, http.StatusOK},
+		{"Incorrect user email", "/feature", "premium", "test10@gmail.com", true, http.StatusNotModified},
+		{"Correct case", "/feature", "financial-tracking", "test4@gmail.com", true, http.StatusOK},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			form := url.Values{}
+			form.Add("featureName", tt.featureName)
+			form.Add("email", tt.email)
+			enable := strconv.FormatBool(tt.enable)
+			form.Add("enable", enable)
+			statusCode, _, _ := ts.postForm(t, tt.urlPath, form)
+			if statusCode != tt.wantCode {
+				t.Errorf("want %d; got %d", tt.wantCode, statusCode)
+			}
+		})
+	}
+}
