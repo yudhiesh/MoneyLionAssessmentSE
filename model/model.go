@@ -2,6 +2,7 @@ package model
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 )
 
@@ -23,6 +24,26 @@ type ResponseInfo struct {
 type Response struct {
 	ResponseInfo ResponseInfo  `json:"response"`
 	Data         UserCanAccess `json:"data"`
+}
+
+func (u *UserCanAccess) SetHeader(w http.ResponseWriter, statusCode int, data interface{}) {
+	w.WriteHeader(statusCode)
+	err := json.NewEncoder(w).Encode(data)
+	if err != nil {
+		fmt.Fprintf(w, "%s", err.Error())
+	}
+}
+
+func (u *UserCanAccess) SetError(w http.ResponseWriter, statusCode int, err error) {
+	if err != nil {
+		u.SetHeader(w, statusCode, struct {
+			Error string `json:"error"`
+		}{
+			Error: err.Error(),
+		})
+		return
+	}
+	u.SetHeader(w, http.StatusBadRequest, nil)
 }
 
 func (r *ResponseInfo) SetHeader(w http.ResponseWriter, message string, status int) {

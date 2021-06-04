@@ -7,6 +7,7 @@ import (
 )
 
 func TestGetCanAcess(t *testing.T) {
+
 	app := newTestApplication(t)
 	ts := newTestServer(t, app.routes())
 	defer ts.Close()
@@ -16,15 +17,13 @@ func TestGetCanAcess(t *testing.T) {
 		wantCode int
 		wantBody []byte
 	}{
-		{"Missing Entire URL Parameter", "/feature", http.StatusUnprocessableEntity, []byte(`{"status":422,"message":"Missing URL query parameters email/featureName"}`)},
-		{"Missing Email URL Parameter", "/feature?email=test@gmail.com", http.StatusUnprocessableEntity, []byte(`{"status":422,"message":"Missing URL query parameters email/featureName"}`)},
-		{"Missing featureName URL Parameter", "/feature?featureName=financial-tracking", http.StatusUnprocessableEntity, []byte(`{"status":422,"message":"Missing URL query parameters email/featureName"}`)},
-		{"Missing featureName URL Parameter", "/feature?featureName=financial-tracking", http.StatusUnprocessableEntity, []byte(`{"status":422,"message":"Missing URL query parameters email/featureName"}`)},
-		{"Email does not exist", "/feature?email=test@gmail.com&featureName=financial-tracking", http.StatusNotFound, []byte(`{"status":404,"message":"No matching record found"}`)},
-		{"Email does not exist", "/feature?email=test@gmail.com&featureName=financial-tracking", http.StatusNotFound, []byte(`{"status":404,"message":"No matching record found"}`)},
-		{"Email and FeatureName exist", "/feature?email=test1@gmail.com&featureName=financial-tracking", http.StatusOK, []byte(`{"response":{"status":200,"message":"Success"},"data":{"can_access":true}}`)},
-		{"Email and FeatureName exist", "/feature?email=test1@gmail.com&featureName=crypto", http.StatusOK, []byte(`{"response":{"status":200,"message":"Success"},"data":{"can_access":true}}`)},
-		{"FeatureName does not exist", "/feature?email=test1@gmail.com&featureName=premium", http.StatusNotFound, []byte(`{"status":404,"message":"No matching record found"}`)},
+		{"Missing Entire URL Parameter", "/feature", http.StatusNotFound, []byte(`{"error":"Missing URL query parameters email/featureName"}`)},
+		{"Missing Email URL Parameter", "/feature?email=test@gmail.com", http.StatusNotFound, []byte(`{"error":"Missing URL query parameters email/featureName"}`)},
+		{"Missing featureName URL Parameter", "/feature?featureName=financial-tracking", http.StatusNotFound, []byte(`{"error":"Missing URL query parameters email/featureName"}`)},
+		{"Email does not exist", "/feature?email=test@gmail.com&featureName=financial-tracking", http.StatusNotFound, []byte(`{"error":"No matching record found"}`)},
+		{"Email and FeatureName exist", "/feature?email=test1@gmail.com&featureName=financial-tracking", http.StatusOK, []byte(`{"can_access":true}`)},
+		{"Email and FeatureName exist", "/feature?email=test1@gmail.com&featureName=crypto", http.StatusOK, []byte(`{"can_access":true}`)},
+		{"FeatureName does not exist", "/feature?email=test1@gmail.com&featureName=premium", http.StatusNotFound, []byte(`{"error":"No matching record found"}`)},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

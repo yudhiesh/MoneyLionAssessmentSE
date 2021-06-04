@@ -21,8 +21,6 @@ type Application struct {
 // whether or not the user associated with the email has access to the feature
 func (a *Application) GetCanAccess(w http.ResponseWriter, r *http.Request) {
 	var user model.UserCanAccess
-	var responseFailure model.ResponseInfo
-	var responseSuccess model.Response
 
 	email := r.URL.Query().Get("email")
 	featureName := r.URL.Query().Get("featureName")
@@ -38,7 +36,7 @@ func (a *Application) GetCanAccess(w http.ResponseWriter, r *http.Request) {
 	// Check if both url parameters have been set by the user
 	if utf8.RuneCountInString(email) == 0 || utf8.RuneCountInString(featureName) == 0 {
 		tx.Rollback()
-		responseFailure.SetHeader(w, MissingURLParameter, http.StatusUnprocessableEntity)
+		user.SetError(w, http.StatusNotFound, errors.New(MissingURLParameter))
 		a.ErrorLog.Printf(MissingURLParameter)
 		return
 	}
@@ -46,19 +44,19 @@ func (a *Application) GetCanAccess(w http.ResponseWriter, r *http.Request) {
 		if errors.Is(err, sql.ErrNoRows) {
 			// Check if the sql query throws a ErrNoRows error
 			tx.Rollback()
-			responseFailure.SetHeader(w, NoMatchingRecordFound, http.StatusNotFound)
+			user.SetError(w, http.StatusNotFound, errors.New(NoMatchingRecordFound))
 			a.ErrorLog.Printf(NoMatchingRecordFound)
 		} else {
 			// Anything else return a StatusInternalServerError
 			tx.Rollback()
-			responseFailure.SetHeader(w, Error, http.StatusInternalServerError)
+			user.SetError(w, http.StatusInternalServerError, errors.New(Error))
 			a.ErrorLog.Printf(Error)
 		}
 		return
 	} else {
 		// If successfull return user object
 		tx.Commit()
-		responseSuccess.SetHeader(w, Success, http.StatusOK, user)
+		user.SetHeader(w, http.StatusOK, &user)
 		a.InfoLog.Printf(Success)
 	}
 }
