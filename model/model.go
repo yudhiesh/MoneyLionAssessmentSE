@@ -6,23 +6,23 @@ import (
 	"net/http"
 )
 
+// Response of the GetCanAccess query
 type UserCanAccess struct {
 	CanAccess bool `json:"can_access"`
 }
 
+// User information that is sent in the InsertFeature request
 type User struct {
 	FeatureName string `json:"featureName" validate:"required"`
 	Email       string `json:"email" validate:"required"`
 	CanAccess   *bool  `json:"can_access" validate:"required"`
+	// store pointer of the bool as default value of bool is false even with no value set
 }
 
-type ResponseInfo struct {
-	Status  int    `json:"status"`
-	Message string `json:"message"`
-}
-
+// Plain response
 type Response struct{}
 
+// Set the header of the successfull request with a specified format which is "data"
 func (u *UserCanAccess) SetHeader(w http.ResponseWriter, statusCode int, data interface{}) {
 	w.WriteHeader(statusCode)
 	err := json.NewEncoder(w).Encode(data)
@@ -31,6 +31,7 @@ func (u *UserCanAccess) SetHeader(w http.ResponseWriter, statusCode int, data in
 	}
 }
 
+// Set the error for the responses with the body returnded
 func (u *UserCanAccess) SetError(w http.ResponseWriter, statusCode int, err error) {
 	if err != nil {
 		u.SetHeader(w, statusCode, struct {
@@ -43,6 +44,7 @@ func (u *UserCanAccess) SetError(w http.ResponseWriter, statusCode int, err erro
 	u.SetHeader(w, http.StatusBadRequest, nil)
 }
 
+// Set the header for the response with no body returned
 func (r *Response) SetHeader(w http.ResponseWriter, statusCode int) {
 	w.WriteHeader(statusCode)
 }
