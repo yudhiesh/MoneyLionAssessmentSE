@@ -7,4 +7,5 @@ var (
 	Success                 string = "Success"
 	Error                   string = "Error"
 	UserNotFound            string = "User not found"
+	DBError                 string = "Database error"
 )
