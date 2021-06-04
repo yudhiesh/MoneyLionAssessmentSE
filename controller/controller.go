@@ -17,6 +17,8 @@ type Application struct {
 	InfoLog  *log.Logger
 }
 
+// GetCanAccess receives the email and featureName from the response and returns
+// whether or not the user associated with the email has access to the feature
 func (a *Application) GetCanAccess(w http.ResponseWriter, r *http.Request) {
 	var user model.UserCanAccess
 	var responseFailure model.ResponseInfo
@@ -61,6 +63,8 @@ func (a *Application) GetCanAccess(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// InsertFeature receives featureName, email and enable from the response then
+// switches the users access to a particular feature
 func (a *Application) InsertFeature(w http.ResponseWriter, r *http.Request) {
 	var user model.User
 	var response model.ResponseInfo
@@ -89,7 +93,7 @@ func (a *Application) InsertFeature(w http.ResponseWriter, r *http.Request) {
 			return
 		} else {
 			// Check if can_access from the response and the database are different
-			if _, access := CanAccessValue(a.DB, *user.CanAccess, user.Email, user.FeatureName); !access {
+			if _, access := a.CanAccessValue(*user.CanAccess, user.Email, user.FeatureName); !access {
 				tx.Rollback()
 				response.SetHeader(w, NoMatchingRecordFound, http.StatusNotModified)
 				a.ErrorLog.Printf(NoMatchingRecordFound)

@@ -1,9 +1,7 @@
 package controller
 
 import (
-	"database/sql"
 	"encoding/json"
-	"errors"
 	"net/http"
 	"strconv"
 )
@@ -13,25 +11,43 @@ func parse(w http.ResponseWriter, r *http.Request, data interface{}) error {
 	return err
 }
 
-func EmailExists(db *sql.DB, email string) bool {
-	row := db.QueryRow("select email from users where email= ?", email)
+// EmailExists takes in the users email and checks that their email exists
+// before using it in any db query
+func (a *Application) EmailExists(email string) (error, bool) {
+	tx, err := a.DB.Begin()
+	if err != nil {
+		tx.Rollback()
+		a.ErrorLog.Print(DBError)
+		return err, false
+	}
+	row := tx.QueryRow("select email from users where email= ?", email)
 	temp := ""
 	row.Scan(&temp)
 	if temp != "" {
-		return true
+		return nil, true
 	}
-	return false
+	err = tx.Commit()
+	return err, false
 }
 
-func CanAccessValue(db *sql.DB, canAccess bool, email, featureName string) (error, bool) {
-	row := db.QueryRow("SELECT features.can_access FROM features INNER JOIN users ON features.user_id=users.id WHERE users.email=? AND features.feature_name=?", email, featureName)
+// CanAccessValue looks the email up in the features and users tbale then checks
+// if the canAccess passed in the request is different from the one in the
+// database
+func (a *Application) CanAccessValue(canAccess bool, email, featureName string) (error, bool) {
+	tx, err := a.DB.Begin()
+	if err != nil {
+		tx.Rollback()
+		a.ErrorLog.Print(DBError)
+		return err, false
+	}
+	row := tx.QueryRow("SELECT features.can_access FROM features INNER JOIN users ON features.user_id=users.id WHERE users.email=? AND features.feature_name=?", email, featureName)
 	rowResult := ""
 	row.Scan(&rowResult)
-	err1 := errors.New("Failed to check value")
 	if rowResult == "0" {
 		return nil, strconv.FormatBool(canAccess) != "false"
 	} else if rowResult == "1" {
 		return nil, strconv.FormatBool(canAccess) != "true"
 	}
-	return err1, false
+	err = tx.Commit()
+	return err, false
 }
