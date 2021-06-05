@@ -27,6 +27,6 @@ INSERT INTO `features` VALUES (3, 2, "crypto", 0);
 INSERT INTO `features` VALUES (4, 3, "automated-investing", 0);
 INSERT INTO `features` VALUES (5, 4, "automated-investing", 1);
 INSERT INTO `features` VALUES (7, 1, "financial-tracking", 1);
-INSERT INTO `featurs` VALUES (8, 2, "financial-tracking", 0);
+INSERT INTO `features` VALUES (8, 2, "financial-tracking", 0);
 INSERT INTO `features` VALUES (9, 3, "financial-tracking", 1);
-INSERT INTO `features` VALUES (10, 4, "financial-tracking", 0);e
+INSERT INTO `features` VALUES (10, 4, "financial-tracking", 0);

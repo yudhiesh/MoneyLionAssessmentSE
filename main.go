@@ -1,6 +1,7 @@
 package main
 
 import (
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -34,6 +35,11 @@ func main() {
 		errorLog.Fatal(err)
 	}
 	defer db.Close()
+	c, ioErr := ioutil.ReadFile("./schema.sql")
+	if ioErr != nil {
+		errorLog.Fatal("Error loading SQL schema")
+	}
+	infoLog.Print(c)
 	app := &controller.Application{
 		DB:       db,
 		ErrorLog: errorLog,
