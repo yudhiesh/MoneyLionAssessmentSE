@@ -25,7 +25,7 @@ As Product Manager, I would like to manage users’ accesses to new features via
 | :------------ | :-------- | :------------------------------------------------------------------------- |
 | `featureName` | `string`  | **Required**. Name of the feature                                          |
 | `email`       | `string`  | **Required**. Email of the user                                            |
-| `can_access`  | `boolean` | **Required**. Change the access a user has to a feature this boolean value |
+| `can_access`  | `boolean` | **Required**. Change the access a user has to a feature to this boolean value |
 
 ## Usage/Examples
 
