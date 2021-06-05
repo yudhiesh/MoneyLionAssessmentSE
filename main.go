@@ -40,10 +40,11 @@ func main() {
 	if ioErr != nil {
 		errorLog.Fatal("Error loading SQL schema")
 	}
-	_, err = db.Exec(sqlScript)
-	if err != nil {
-		errorLog.Fatal("Unable to execute SQL script")
-	}
+	infoLog.Print(sqlScript)
+	// _, err = db.Exec(sqlScript)
+	// if err != nil {
+	// 	errorLog.Fatal("Unable to execute SQL script")
+	// }
 	app := &controller.Application{
 		DB:       db,
 		ErrorLog: errorLog,
