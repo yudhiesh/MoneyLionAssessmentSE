@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"log"
 	"net/http"
 	"os"
@@ -9,8 +8,9 @@ import (
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
-
+	"github.com/joho/godotenv"
 	"github.com/rs/cors"
+
 	"github.com/yudhiesh/api/controller"
 	"github.com/yudhiesh/api/middleware"
 )
@@ -19,9 +19,12 @@ func main() {
 	router := mux.NewRouter()
 	router.Use(middleware.ResponseHeaders)
 	router.Use(middleware.LogRequest)
-	dsn := flag.String("dsn", "root:password@/assessment", "MySQL data source name")
-	flag.Parse()
-	db, err := controller.OpenDB(*dsn)
+	err := godotenv.Load(".env")
+	db_user := os.Getenv("DB_USER")
+	db_password := os.Getenv("DB_PASSWORD")
+	db_name := os.Getenv("DB_NAME")
+	dsn := db_user + ":" + db_password + "@/" + db_name
+	db, err := controller.OpenDB(dsn)
 	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
 	if err != nil {
@@ -36,7 +39,8 @@ func main() {
 	router.HandleFunc("/feature", app.GetCanAccess).Methods("GET")
 	router.HandleFunc("/feature", app.InsertFeature).Methods("POST")
 	http.Handle("/", router)
-	port := ":3000"
+	port := os.Getenv("PORT")
+	portAddr := ":" + port
 	c := cors.New(cors.Options{
 		AllowedOrigins:   []string{"http://localhost:8000"},
 		AllowCredentials: true,
@@ -44,7 +48,7 @@ func main() {
 	handler := c.Handler(router)
 	server := &http.Server{
 		Handler: handler,
-		Addr:    port,
+		Addr:    portAddr,
 		// keep-alives last a minute instead of 3 minutes
 		IdleTimeout: time.Minute,
 		// Short ReadTimeout prevents SLowloris attacks
