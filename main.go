@@ -38,13 +38,12 @@ func main() {
 	c, ioErr := ioutil.ReadFile("./schema.sql")
 	sqlScript := string(c)
 	if ioErr != nil {
-		errorLog.Fatal("Error loading SQL schema")
+		errorLog.Fatalf("Error loading SQL schema : %s", ioErr)
 	}
-	infoLog.Print(sqlScript)
-	// _, err = db.Exec(sqlScript)
-	// if err != nil {
-	// 	errorLog.Fatal("Unable to execute SQL script")
-	// }
+	_, err = db.Exec(sqlScript)
+	if err != nil {
+		errorLog.Fatalf("Error executing SQL script : %s", err)
+	}
 	app := &controller.Application{
 		DB:       db,
 		ErrorLog: errorLog,
