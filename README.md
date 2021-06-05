@@ -1,10 +1,12 @@
 # MoneyLion AI Software Engineer Assessment
 
-As Product Manager, I would like to manage users’ accesses to new features via feature switches,i.e. enabling/disabling certain feature based on a user’s email and feature names).
+As Product Manager, I would like to manage users accesses to new features via feature switches, i.e. enabling/disabling certain feature based on a user’s email and feature names.
 
 ## API Reference
 
-#### Get the boolean value of whether a user has access to a particular feature
+#### Get the can_access value of the user 
+
+This endpoint receives email (user’s email) and featureName as request parameters and returns the `canAccess` value in JSON format.
 
 ```http
   GET https://api-moneylion.herokuapp.com/feature
@@ -15,7 +17,9 @@ As Product Manager, I would like to manage users’ accesses to new features via
 | `email`       | `string` | **Required**. Email of the user   |
 | `featureName` | `string` | **Required**. Name of the feature |
 
-#### Update the access a user has to a particular feature
+#### Update the users access to a feature
+
+This endpoint receives the following request in JSON format and returns an empty response with HTTP Status OK (200) when the database is updated successfully, otherwisereturns Hp Status Not Modified (304)
 
 ```http
   POST https://api-moneylion.herokuapp.com/feature
