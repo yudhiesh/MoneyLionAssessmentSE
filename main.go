@@ -18,12 +18,18 @@ func main() {
 	router := mux.NewRouter()
 	router.Use(middleware.ResponseHeaders)
 	router.Use(middleware.LogRequest)
-	err := godotenv.Load(".env")
-	dsn := os.Getenv("DSN")
-	port := os.Getenv("PORT")
-	db, err := controller.OpenDB(dsn)
 	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
+	err := godotenv.Load(".env")
+	port := os.Getenv("PORT")
+	if port == "" {
+		errorLog.Fatal("$PORT is not set")
+	}
+	dsn := os.Getenv("DSN")
+	if dsn == "" {
+		errorLog.Fatal("$DATABASE_URL is not set")
+	}
+	db, err := controller.OpenDB(dsn)
 	if err != nil {
 		errorLog.Fatal(err)
 	}
