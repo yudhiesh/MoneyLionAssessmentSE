@@ -19,7 +19,7 @@ This endpoint receives email (user’s email) and featureName as request paramet
 
 #### Update the users access to a feature
 
-This endpoint receives the following request in JSON format and returns an empty response with HTTP Status OK (200) when the database is updated successfully, otherwisereturns Hp Status Not Modified (304)
+This endpoint receives the following request in JSON format and returns an empty response with HTTP Status OK (200) when the database is updated successfully, otherwisereturns HTTP Status Not Modified (304)
 
 ```http
   POST https://api-moneylion.herokuapp.com/feature
