@@ -1,18 +1,14 @@
-CREATE DATABASE assessment;
-
-USE assessment;
-
+CREATE DATABASE test;
+USE test;
 CREATE TABLE users (
 	id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT, 
 	email VARCHAR(255) NOT NULL
 );
-
 INSERT INTO `users` VALUES (1,"test1@gmail.com");
 INSERT INTO `users` VALUES (2,"test2@gmail.com");
 INSERT INTO `users` VALUES (3,"test3@gmail.com");
 INSERT INTO `users` VALUES (4,"test4@gmail.com");
 INSERT INTO `users` VALUES (5,"test5@gmail.com");
-
 CREATE TABLE features (
 	feature_id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
 	user_id INTEGER NOT NULL,
@@ -20,7 +16,6 @@ CREATE TABLE features (
 	can_access BOOLEAN NOT NULL DEFAULT FALSE,
 	FOREIGN KEY (user_id) REFERENCES users(id) 
 );
-
 INSERT INTO `features` VALUES (1, 1, "automated-investing", 1);
 INSERT INTO `features` VALUES (2, 1, "crypto", 0);
 INSERT INTO `features` VALUES (3, 2, "crypto", 0);
