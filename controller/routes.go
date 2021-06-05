@@ -8,7 +8,7 @@ import (
 	"github.com/yudhiesh/api/middleware"
 )
 
-func (app *Application) routes() http.Handler {
+func (app *Application) Routes() http.Handler {
 	standardMiddleware := alice.New(middleware.LogRequest, middleware.ResponseHeaders)
 	router := mux.NewRouter()
 	router.HandleFunc("/feature", app.GetCanAccess).Methods("GET")

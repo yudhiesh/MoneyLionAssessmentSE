@@ -3,15 +3,13 @@ package controller
 import (
 	"bytes"
 	"net/http"
-	"net/url"
-	"strconv"
 	"testing"
 )
 
 func TestGetCanAcess(t *testing.T) {
 
 	app := newTestApplication(t)
-	ts := newTestServer(t, app.routes())
+	ts := newTestServer(t, app.Routes())
 	defer ts.Close()
 	tests := []struct {
 		name     string
@@ -40,34 +38,30 @@ func TestGetCanAcess(t *testing.T) {
 	}
 }
 
-func TestInsetFeature(t *testing.T) {
+func TestInsertFeature(t *testing.T) {
 
 	app := newTestApplication(t)
-	ts := newTestServer(t, app.routes())
+	ts := newTestServer(t, app.Routes())
 	defer ts.Close()
 	tests := []struct {
-		name        string
-		urlPath     string
-		featureName string
-		email       string
-		enable      bool
-		wantCode    int
+		name     string
+		urlPath  string
+		body     []byte
+		wantCode int
 	}{
-		{"Missing body 1", "/feature", "", "", false, http.StatusNotModified},
-		{"Missing body 2", "/feature", "", "", true, http.StatusNotModified},
-		{"Incorrect value for parameters 1", "/feature", "premium", "test1@gmail.com", false, http.StatusNotModified},
-		{"Correct case", "/feature", "automated-investing", "test3@gmail.com", true, http.StatusOK},
-		{"Incorrect user email", "/feature", "premium", "test10@gmail.com", true, http.StatusNotModified},
-		{"Correct case", "/feature", "financial-tracking", "test4@gmail.com", true, http.StatusOK},
+		{"Missing entire body", "/feature", []byte(``), http.StatusNotModified},
+		{"Missing body 1", "/feature", []byte(`{"featureName": "", "email": "", "can_access": ""}`), http.StatusNotModified},
+		{"Missing body 2", "/feature", []byte(`{"featureName": "", "can_access": ""}`), http.StatusNotModified},
+		{"Missing body 3", "/feature", []byte(`{"email": "", "can_access": ""}`), http.StatusNotModified},
+		{"Incorrect value for parameters 1", "/feature", []byte(`{"featureName": "premium", "email": "test3@gmail.com", "can_access": true}`), http.StatusNotModified},
+		{"Incorrect user email", "/feature", []byte(`{"featureName": "premium", "email": "test10@gmail.com", "can_access": true}`), http.StatusNotModified},
+		{"Incorrect can_access", "/feature", []byte(`{"featureName": "financial-tracking", "email": "test2@gmail.com"}, "can_access": false`), http.StatusNotModified},
+		{"Correct case 1", "/feature", []byte(`{"featureName": "automated-investing", "email": "test4@gmail.com", "can_access": true}`), http.StatusOK},
+		{"Correct case 2", "/feature", []byte(`{"featureName": "crypto", "email": "test1@gmail.com", "can_access": false}`), http.StatusOK},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			form := url.Values{}
-			form.Add("featureName", tt.featureName)
-			form.Add("email", tt.email)
-			enable := strconv.FormatBool(tt.enable)
-			form.Add("enable", enable)
-			statusCode, _, _ := ts.postForm(t, tt.urlPath, form)
+			statusCode, _, _ := ts.postForm(t, tt.urlPath, tt.body)
 			if statusCode != tt.wantCode {
 				t.Errorf("want %d; got %d", tt.wantCode, statusCode)
 			}

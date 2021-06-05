@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"database/sql"
 	"encoding/json"
 	"net/http"
 	"strconv"
@@ -50,4 +51,18 @@ func (a *Application) CanAccessValue(canAccess bool, email, featureName string) 
 	}
 	err = tx.Commit()
 	return err, false
+}
+
+// Returns a sql.DB connection pool for a given DSN
+func OpenDB(dsn string) (*sql.DB, error) {
+	db, err := sql.Open("mysql", dsn)
+	if err != nil {
+		return nil, err
+	}
+	// Connections are established lazily as and when needed for the first time
+	// db.Ping creates a connection and we check that there isn't any errors
+	if err = db.Ping(); err != nil {
+		return nil, err
+	}
+	return db, nil
 }
