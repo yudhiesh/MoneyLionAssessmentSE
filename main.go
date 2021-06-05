@@ -36,10 +36,14 @@ func main() {
 	}
 	defer db.Close()
 	c, ioErr := ioutil.ReadFile("./schema.sql")
+	sqlScript := string(c)
 	if ioErr != nil {
 		errorLog.Fatal("Error loading SQL schema")
 	}
-	infoLog.Print(c)
+	_, err = db.Exec(sqlScript)
+	if err != nil {
+		errorLog.Fatal("Unable to execute SQL script")
+	}
 	app := &controller.Application{
 		DB:       db,
 		ErrorLog: errorLog,
