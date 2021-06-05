@@ -21,7 +21,7 @@ func main() {
 	err := godotenv.Load(".env")
 	dsn := os.Getenv("DSN")
 	port := os.Getenv("PORT")
-	db_host := os.Getenv("DB_HOST")
+	_ := os.Getenv("DB_HOST")
 	db, err := controller.OpenDB(dsn)
 	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
@@ -34,7 +34,7 @@ func main() {
 		ErrorLog: errorLog,
 		InfoLog:  infoLog,
 	}
-	addr := db_host + ":" + port
+	addr := ":" + port
 	server := &http.Server{
 		Handler:      router,
 		Addr:         addr,
