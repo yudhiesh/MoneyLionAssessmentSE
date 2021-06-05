@@ -1,6 +1,8 @@
 ## Test Cases
 
-1. TestCanGetAccess test the `GET` request to `/feature`
+**Test cases are run under [controller_test.go](https://github.com/yudhiesh/MoneyLionAssessmentSE/blob/b48ed9bb5e99c9fe450b327cbf1857ef8be8ff40/controller/controller_test.go).**
+
+1. TestCanGetAccess tests the `GET` request to `/feature`
 
 ```
 ❯ go test -v -run="TestGetCanAcess" ./controller/

@@ -61,7 +61,7 @@ func TestInsertFeature(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			statusCode, _, _ := ts.postForm(t, tt.urlPath, tt.body)
+			statusCode, _, _ := ts.post(t, tt.urlPath, tt.body)
 			if statusCode != tt.wantCode {
 				t.Errorf("want %d; got %d", tt.wantCode, statusCode)
 			}

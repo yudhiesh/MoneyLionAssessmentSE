@@ -59,10 +59,10 @@ func (ts *testServer) get(t *testing.T, urlPath string) (int, http.Header, []byt
 	return rs.StatusCode, rs.Header, body
 }
 
-// Create a postForm method for sending a POST request to the test server
+// Create a post method for sending a POST request to the test server
 // form is a url.Values object which can contain any data that you want to send
 // in the request body
-func (ts *testServer) postForm(t *testing.T, urlPath string, body []byte) (int, http.Header, []byte) {
+func (ts *testServer) post(t *testing.T, urlPath string, body []byte) (int, http.Header, []byte) {
 	rs, err := ts.Client().Post(ts.URL+urlPath, "application/json", bytes.NewReader(body))
 	if err != nil {
 		t.Fatal(err)
