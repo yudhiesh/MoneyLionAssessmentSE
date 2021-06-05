@@ -22,9 +22,9 @@ func main() {
 	db_user := os.Getenv("DB_USER")
 	db_password := os.Getenv("DB_PASSWORD")
 	db_name := os.Getenv("DB_NAME")
-	db_port := os.Getenv("DB_PORT")
 	port := os.Getenv("PORT")
-	dsn := db_user + ":" + db_password + "@tcp(mysql:" + db_port + ")/" + db_name
+	db_host := os.Getenv("DB_HOST")
+	dsn := db_user + ":" + db_password + "@/" + db_name
 	db, err := controller.OpenDB(dsn)
 	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
@@ -37,19 +37,16 @@ func main() {
 		ErrorLog: errorLog,
 		InfoLog:  infoLog,
 	}
+	addr := db_host + ":" + port
+	server := &http.Server{
+		Handler:      router,
+		Addr:         addr,
+		WriteTimeout: 15 * time.Second,
+		ReadTimeout:  15 * time.Second,
+	}
 	router.HandleFunc("/feature", app.GetCanAccess).Methods("GET")
 	router.HandleFunc("/feature", app.InsertFeature).Methods("POST")
 	http.Handle("/", router)
-	server := &http.Server{
-		Handler: router,
-		Addr:    port,
-		// keep-alives last a minute instead of 3 minutes
-		IdleTimeout: time.Minute,
-		// Short ReadTimeout prevents SLowloris attacks
-		ReadTimeout: 5 * time.Second,
-		// Prevent the data that the handler returns from taking too long to write
-		WriteTimeout: 10 * time.Second,
-	}
 	infoLog.Printf("Connected to port %s", port)
 	errorLog.Fatal(server.ListenAndServe())
 }
