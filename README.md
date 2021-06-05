@@ -134,6 +134,8 @@ To simulate the scenario I have created two tables called _users_ and _features_
 
 The _features_ table contains all the features and whether or not a user has access to those features.
 
+There is a sample of the script to create the MySQL tables in [schema.sql](https://github.com/yudhiesh/MoneyLionAssessmentSE/blob/master/schema.sql). 
+
 [![Screenshot-2021-06-05-at-10-09-10-PM.png](https://i.postimg.cc/rmcM85xV/Screenshot-2021-06-05-at-10-09-10-PM.png)](https://postimg.cc/PL6BypS9)
 
 - users
@@ -156,7 +158,7 @@ The _features_ table contains all the features and whether or not a user has acc
 +------------+---------+---------------------+------------+
 | feature_id | user_id | feature_name        | can_access |
 +------------+---------+---------------------+------------+
-|          1 |       1 | automated-investing |          1 |
+|          1 |       1 | automated-investing |          0 |
 |          2 |       1 | crypto              |          0 |
 |          3 |       2 | crypto              |          0 |
 |          4 |       3 | automated-investing |          0 |
