@@ -4,7 +4,7 @@ As Product Manager, I would like to manage users accesses to new features via fe
 
 ## API Reference
 
-#### Get the can_access value of the user 
+#### Get the can_access value of the user
 
 This endpoint receives email (user’s email) and featureName as request parameters and returns the `canAccess` value in JSON format.
 
@@ -25,10 +25,10 @@ This endpoint receives the following request in JSON format and returns an empty
   POST https://api-moneylion.herokuapp.com/feature
 ```
 
-| Parameter     | Type      | Description                                                                |
-| :------------ | :-------- | :------------------------------------------------------------------------- |
-| `featureName` | `string`  | **Required**. Name of the feature                                          |
-| `email`       | `string`  | **Required**. Email of the user                                            |
+| Parameter     | Type      | Description                                                                   |
+| :------------ | :-------- | :---------------------------------------------------------------------------- |
+| `featureName` | `string`  | **Required**. Name of the feature                                             |
+| `email`       | `string`  | **Required**. Email of the user                                               |
 | `can_access`  | `boolean` | **Required**. Change the access a user has to a feature to this boolean value |
 
 ## Usage/Examples
@@ -138,7 +138,7 @@ To simulate the scenario I have created two tables called _users_ and _features_
 
 The _features_ table contains all the features and whether or not a user has access to those features.
 
-There is a sample of the script to create the MySQL tables in [schema.sql](https://github.com/yudhiesh/MoneyLionAssessmentSE/blob/master/schema.sql). 
+There is a sample of the script to create the MySQL tables in [schema.sql](https://github.com/yudhiesh/MoneyLionAssessmentSE/blob/master/schema.sql).
 
 [![Screenshot-2021-06-05-at-10-09-10-PM.png](https://i.postimg.cc/rmcM85xV/Screenshot-2021-06-05-at-10-09-10-PM.png)](https://postimg.cc/PL6BypS9)
 
@@ -237,3 +237,19 @@ ok  	github.com/yudhiesh/api/controller	0.577s
 **Database:** MySQL
 
 **Deployment:** Heroku
+
+## Environment Variables
+
+There are two environment variables in the **main.go** file
+
+`PORT`
+
+Port number to connect to on the server which is provided by Heroku
+
+`DSN`
+
+Database connection URL which is provided by Heroku after setting up ClearDB(MySQL).
+
+Instructions to get it can be found [here](https://alcher.dev/2020/heroku-go-mysql-notes/).
+
+Example: `alphanum-username:alphanum-password@tcp(us-cdbr-iron-east-01.cleardb.net)/heroku_alphanum_name`
